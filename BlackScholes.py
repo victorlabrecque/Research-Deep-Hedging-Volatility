@@ -4,6 +4,15 @@ from scipy.optimize import brentq  # solve implied vol
 
 
 class BlackScholes:
+    """
+    Black-Scholes model
+    1. option price
+    2. Greeks
+    3. Implied volatility
+    4. Montecarlo paths simulation
+    5. Deltas hedging (with and without transaction costs)
+    """
+
     def __init__(self, S, K, r, sigma, T):
         self.S = S  # current asset price
         self.K = K  # strike
@@ -11,7 +20,7 @@ class BlackScholes:
         self.sigma = sigma  # volatility
         self.T = T  # time to maturity
 
-    # --- Option Price ---
+    # --- 1. Option Price ---
 
     def call_price(self):
         d1 = (np.log(self.S / self.K) + (self.r + 0.5 * (self.sigma**2)) * self.T) / (
@@ -25,7 +34,7 @@ class BlackScholes:
     def put_price(self):  # by put call parity
         return float(self.call_price() - self.S + self.K * np.exp(-self.r * self.T))
 
-    # --- Greeks ---
+    # --- 2. Greeks ---
 
     def call_delta(self):  # first derivative with respect to price S
         d1 = (np.log(self.S / self.K) + (self.r + 0.5 * (self.sigma**2)) * self.T) / (
@@ -42,7 +51,7 @@ class BlackScholes:
         )
         return float(norm.pdf(d1) / (self.S * self.sigma * np.sqrt(self.T)))
 
-    # --- Implied Volatility ---
+    # --- 3. Implied Volatility ---
 
     def implied_vol(self, price, call=True):
         def call_price(sigma_implied):
@@ -55,7 +64,7 @@ class BlackScholes:
             )
 
         if call:
-            objective = lambda sigma_implied: call_price(sigma_implied) - price
+            objective = lambda sigma_implied: call_price(sigma_implied) - price  # noqa: E731
         if not call:
 
             def put_price(sigma_implied):  # by put-call parity
@@ -65,11 +74,11 @@ class BlackScholes:
                     + self.K * np.exp(-self.r * self.T)
                 )
 
-            objective = lambda sigma_implied: put_price(sigma_implied) - price
+            objective = lambda sigma_implied: put_price(sigma_implied) - price  # noqa: E731
 
         return brentq(objective, 1e-6, 10)
 
-    # --- Montecarlo simulation (exact discretization) ---
+    # --- 4. Montecarlo simulation (exact discretization) ---
 
     def BS_paths(self, N_steps, M_paths, seed=123):
         np.random.seed(seed)
@@ -82,7 +91,7 @@ class BlackScholes:
 
         return S_paths.astype(np.float32)
 
-    # --- Delta hedging (given simulated paths) ---
+    # --- 5. Delta hedging (given simulated paths) ---
 
     def delta_hedging(
         self, S_paths, transaction_cost, Initial_portfolio=0, kappa=0, risk_aversion=1
