@@ -82,7 +82,7 @@ def plot_n_deltas(
     deltas1_n = deltas1[sort_idx, :]
     deltas2_n = deltas2[sort_idx, :]
 
-    time_axis = np.linspace(0, T, first_n.shape[1])
+    # time_axis = np.linspace(0, T, first_n.shape[1])
 
     ytick_labels = [f"{terminal_moneyness[i]:.3f}" for i in range(n)]
 
