@@ -139,3 +139,27 @@ def plot_n_deltas(
     )
     plt.tight_layout()
     plt.show()
+
+    # --- 4. Correlation ---
+    def plot_correlation(delta1, delta2, T, label1="delta1", label2="delta2"):
+        delta1_c = delta1 - delta1.mean(axis=0)
+        delta2_c = delta2 - delta2.mean(axis=0)
+        num = (delta1_c * delta2_c).sum(axis=0)
+        denum = np.sqrt((delta1_c**2).sum(axis=0) * (delta2_c**2).sum(axis=0))
+        corr = num / denum
+
+        time_axis = np.linspace(0, T, len(corr))
+
+        plt.figure(figsize=(10, 4))
+        plt.plot(time_axis, corr, color="steelblue", linewidth=1.5)
+        plt.axhline(0, color="black", linewidth=0.8, linestyle="--")
+        plt.axhline(1, color="gray", linewidth=0.8, linestyle=":")
+        plt.axhline(-1, color="gray", linewidth=0.8, linestyle=":")
+        plt.fill_between(time_axis, corr, 0, alpha=0.15, color="steelblue")
+        plt.ylim(-1.05, 1.05)
+        plt.xlabel("Time")
+        plt.ylabel("Correlation")
+        plt.title(f"Delta Correlation: {label1} vs {label2}")
+        plt.grid(alpha=0.3)
+        plt.tight_layout()
+        plt.show()
