@@ -94,7 +94,12 @@ class BlackScholes:
     # --- 5. Delta hedging (given simulated paths) ---
 
     def delta_hedging(
-        self, S_paths, transaction_cost, Initial_portfolio=0, kappa=0, risk_aversion=1
+        self,
+        S_paths,
+        Initial_portfolio=0,
+        transaction_cost=False,
+        kappa=0,
+        risk_aversion=1,
     ):
         # transaction_cost = 'Leland', or 'Whalley-Wilmott'
 
