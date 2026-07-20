@@ -7,5 +7,5 @@ ICAP_2Y.xlsx
 ### Deep Hedging
 BlackScholes.py
 - Black-Scholes class for option pricing, greeks and Monte-Carlo simulation
-
-Deep_hedging
+Deep_hedging.ipynb
+- 
