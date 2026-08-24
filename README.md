@@ -54,4 +54,4 @@ SANOS_theory_implementation.ipynb
 - Theory and implementation of SANOS to TSLA option data.
 
 sanos_---.py
-- Hans Buehler SANOS code (for review, too general) 
+- Hans Buehler SANOS code (for review, generalized code) 
