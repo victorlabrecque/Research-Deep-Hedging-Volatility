@@ -2,7 +2,7 @@
 
 *This folder contains my notebooks and code for my summer project and master's research.*
 
-*Last update: 2026-08-21*
+*Last update: 2026-08-26*
 
 ### Data
 
@@ -36,22 +36,33 @@ Simple_Deep_hedging.ipynb
 Deep_learning.ipynb
 - Notes on deep learning theory
 
+Master_Research_Notes.ipynb
+- Tracks of what I have done, what to read next, what to do next for master's research
+- Currently focused on option surface modeling
+  
 Notes.ipynb
 - General notes
 
 Paper_Review.ipynb
 - Overview of some research paper I read
 
+Summer_finals.ipynb
+- Overview of my summer research project to present to profs
+
 ### Other & Testing
 - General files for testing
 
 ### Vol_Models
+
+DYSANOS.ipynb
+- Theory of DYSANOS.
 
 Notes_VolModels.ipynb
 - Notes on the volatility surface model, exploring papers such as SANOS, DYSANOS, and exploring to utilize generative model in such volatility surface model
 
 SANOS_theory_implementation.ipynb
 - Theory and implementation of SANOS to TSLA option data.
+- Currently only for a single expiry, need data and adjust for full surface
 
 sanos_---.py
 - Hans Buehler SANOS code (for review, generalized code) 
