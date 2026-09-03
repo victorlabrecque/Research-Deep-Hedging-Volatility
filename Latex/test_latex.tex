@@ -1,0 +1,208 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{hyperref}
+
+\title{Research Proposal}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+\textbf{Arbitrage-Free Generative Option Surfaces for Systematic Covered Call and Put Overlay Strategies}
+\end{center}
+
+\textit{This proposal builds a pipeline that fits real option surfaces with SANOS, a non-parametric method guaranteeing smooth, strictly arbitrage-free prices via convex Black-Scholes kernels, then extends it into a dynamic generative model (DYSANOS) by evolving a low-dimensional latent surface state through a mean-reverting process jointly with spot. The resulting realistic, always arbitrage-free simulated paths train a Deep Hedging reinforcement-learning agent to learn optimal covered call/put rebalancing (timing, sizing, strike selection) against a chosen risk objective (e.g. CVaR), rather than static Greeks-based rules. Open challenges include multi-asset extensions, adjusting for American-style early exercise, and efficient time-series modeling of the latent state.}
+
+\vspace{1em}
+\noindent\textbf{Keywords}: Option Surface Modeling, Deep Hedging, Reinforcement Learning, Time Series Analysis, Generative Modeling, Systematic Options Overlay
+
+\vspace{1em}
+\hrule
+\begin{center}
+\textbf{Research Overview}
+\end{center}
+\hrule
+\vspace{1em}
+
+\section*{Deep Hedging}
+
+H. Buehler, L. Gonon, J. Teichmann, and B. Wood. Deep hedging. Quantitative Finance, 19(8):1271--1291, 2019.
+\url{https://arxiv.org/abs/1802.03042}
+
+\textit{Deep hedging trains a reinforcement learning agent to learn how to optimize losses (or pnl) against a certain risk objective, on simulated asset prices.}
+
+\subsubsection*{Base Scenario}
+
+Consider the following situation. Assume the market has no friction, simulated paths follow Black-Scholes. The hedging has only the stock price as a trading instrument.
+
+Let $S_t$ be the underlying stock. You are short a European call option. At each rebalancing step $t$, you hold $\delta_t$ shares of the underlying. The P\&L of the hedged portfolio is:
+
+$$
+\text{PnL} = \text{Option Premium} - \text{Payoff}(S_T) + \sum_{t=0}^{T-1} \delta_t (S_{t+1} - S_t) - \text{Transaction Cost}
+$$
+
+The goal is to learn $\delta_t = f_\theta(\text{state}_t)$ that minimizes a risk measure (e.g. CVaR) of the terminal P\&L.
+
+In this case, the Black-Scholes hedging will be delta-hedging. Assuming trading is discrete, hold of size $\delta_t = \Phi(d_1(S_t, t))$ the asset $S_t$ at each rebalancing step $t \leq T$.
+
+\vspace{1em}
+
+In the case of the deep learning agent, we will use a neural network to approximate the rebalancing rule function $\delta_t = f_\theta(\text{state}_t)$.
+
+Consider the following Neural Network:
+\begin{itemize}
+    \item 2 Inputs: Asset price and Time to Maturity
+    \item 2 Hidden Layers, 64 neurons per Layer \textit{(arbitrary)}
+    \item 1 output (delta)
+    \item ReLU activation function: $\text{ReLU}(x) = \text{max}(x, 0)$
+    \item Sigmoid output activation function: $\sigma(x) = \dfrac{1}{1+e^{-x}} \in [0,1]$
+\end{itemize}
+
+In this base case example, basically, the function we want the Neural Network to approximate is the Black-Scholes delta $\Phi(d_1)$, since under a the Black-Scholes simulation, if you could rebalance continuously, the Black-Scholes delta hedging P\&L would be zero (perfect hedge).
+
+\subsubsection*{Advantages}
+
+\begin{itemize}
+    \item Universal approximation theorem of a Neural Network (converges to good answer if set up properly)
+    \item Easily adjustable for transaction costs, market impacts, trading constraints, etc. (already done, lmk if you want to see)
+    \item Can add inputs (option surfaces) to the network for multi-instruments hedging
+    \item Can be adjusted from a hedging prospective to a optimal execution strategy (rebalancing rule in a covered call strategy)
+\end{itemize}
+
+\subsubsection*{Disadvantages}
+
+\begin{itemize}
+    \item Requires lot of training data.
+    \item Black box: Sometime, the learning agent may `sacrifice' some paths to optimize others.
+    \item Black box: The hedging agent may speculate, or take high risk early on.
+\end{itemize}
+
+\vspace{1em}
+\hrule
+\section*{Option Surface Modeling}
+
+Hans Buehler, Blanka Horvath, Anastais Kratsios, Yannick Limmer, and Raeid Saqur. Sanos - smooth arbitrage-free non-parametric option surfaces. \url{https://arxiv.org/abs/2601.11209}, February 2026.
+
+\textit{SANOS (Smooth strictly Arbitrage-free Non-parametric Option Surfaces) represents call prices as a convex combination of Black-Scholes call kernels anchored at a grid of strikes and variances (observed and extended). The weights, a martingale density, are fit via linear/convex programming to match observed market bid/ask prices; because the combination is convex by construction, the resulting surface is automatically smooth and strictly arbitrage-free, and extends naturally to strikes and expiries beyond those directly quoted.}
+
+\vspace{1em}
+\hrule
+\section*{Option Surface Simulation}
+
+Hans Buehler, Blanka Horvath, Anastais Kratsios. Dysanos - Generative Dynamic Smooth Arbitrage-free Non-parametric Option Surfaces. \url{https://arxiv.org/abs/2608.12587}, August 2026.
+
+\subsubsection*{Surface re-modeling}
+
+The above option surface modeling SANOS can be viewed as the mapping
+$$
+(q, W; \hat{K}, \hat{T}, \mu) \xrightarrow{SANOS} C_{\text{\tiny SANOS}}
+$$
+where $q, W$ are optimized variables, $\hat{K}, \hat{T}, \mu$ are deterministic (surface grid and smoothing parameter). $C_{\text{\tiny SANOS}}$ is a complete option surface.
+
+Since $q$ is subject to linear constraints, it is hard to use ML on it. The idea of ML-SANOS is to create the mapping
+$$
+(x) \xrightarrow{\text{\tiny ML-SANOS}}
+(\Sigma, W) \xrightarrow{\text{\tiny DLV}} (q) \xrightarrow{\text{\tiny SANOS}} C_{\text{\tiny SANOS}}
+$$
+where $x$ and the decoder function ML-SANOS are trained from real market option surfaces. The objective function are the sum of losses from SANOS option surface against bid-ask and mid prices.
+
+\subsubsection*{Intermediary Results: Option Surface Time Series}
+
+In this new parametrization, $x$ lives in the unrestricted space and is therefore well suited for ML/AI based learning. Note that $(x)$ is already a valid time series which can be decoded to obtain a valid option surface at every time step.
+
+For efficient time series analysis, reduce the dimension of $(x) \in \mathbb{R}^{\text{\tiny FullDim}}$ to $h \in \mathbb{R}^{\text{\tiny LowDim}}$
+
+$$
+(h)^{\text{\tiny LowDim}} \xrightarrow{\text{\tiny NQ}} (x)^{\text{\tiny FullDim}}
+$$
+
+After training, we are left with 2 things:
+\begin{itemize}
+    \item A time series $\{h_t\}_{t=1}^{N_{\text{\tiny training}}}$, $h_t \in \mathbb{R}^{20}$ for each training day $t$
+    \item A single shared decoder $\theta$ from $NQ_{\theta}$ (that leads to a valid SANOS option surface), valid across all days
+\end{itemize}
+
+Note that in practice, we train the whole thing at once ($x$ and $h$ are trained together).
+
+\subsubsection*{Surface Simulation}
+
+Assume we are given historic samples of ML-SANOS surface states $\tilde{h}_t = (\tilde{h}^1_t, \ldots, \tilde{h}^{n_h}_t) \in \mathbb{R}^{n_h}$ for each historic date $t \in \{t_1, \ldots, t_{n_t}\}$. We also observe log-spot $\tilde{s}_t := \log S_t$. We use the tilde to distinguish real observed data from simulated data.
+
+\vspace{0.5em}
+
+Model a time series $h$ as follows (baseline model, potential for further research):
+
+\textit{Continuous-time PCA-AR(1)}
+$$
+dh_t = \kappa (m - h_t) \, dt + \Sigma_h \, dW_t^h
+$$
+for $m \in \mathbb{R}^{n_h}$, $\kappa \in \mathbb{R}^{n_h, n_h}$, $\Sigma_h \in \mathbb{R}^{n_h,n_\alpha}$ and a Brownian motion $W_t^h \in \mathbb{R}^{n_\alpha}$. $n_h$ is the dimension of the vector $h_t$, $n_{\alpha}$ is the number of PCA factors (or no PCA and analyse full dimension of $h$).
+
+\vspace{0.5em}
+
+Now model the log-spot price time series $s_t$
+
+\textit{Log-spot} (fitted afterward)
+$$
+ds_t = \mu \, dt + \beta^{\prime} \, dW_t^h + \varsigma \, dW_t^s
+$$
+where $\mu \in \mathbb{R}$ is an intercept, $\beta \in \mathbb{R}^{n_h}$, $\varsigma \in \mathbb{R}$ and $dW_t^s \in \mathbb{R}$ is an independent Brownian motion. This preserves the autonomous surface dynamics and captures contemporaneous spot--surface dependence through $\beta$.
+
+\vspace{1em}
+
+\textit{Simulation}
+
+\begin{enumerate}
+    \item Draw randomly $h_0$ from $\tilde h_{t \in \{1,\dots,n_t\}}$ or the invariant distribution.
+
+    \item Generate the surface path using the Euler discretization
+    $$
+    h_{t+dt} = h_t + \kappa(m - h_t)\Delta_t + \Sigma_h Z_t\sqrt{\Delta_t}
+    $$
+    where $\Delta_t$ is the normalized time increment. The noise term is defined as mixture
+    $$
+    Z_t = \sqrt{1-b^2} \ \tilde\alpha_{I_t(\omega)} + b \ Y_t,
+    $$
+    between a resampled standardized historic PCA score and an independent standard normal $Y_t \sim \mathcal{N}(0, I_{n_\alpha})$ for bandwidth $b\in[0,1]$. Here $I_t(\omega)$ is sampled from the indices of the historic transitions. Hence $b=0$ gives empirical innovation resampling, while $b=1$ gives a Gaussian innovation with the same fitted covariance.
+
+    \item Conditional on the complete surface path, generate log-spot using
+    $$
+    ds_t = \mu \, dt + \beta^{\prime} \, dW_t^h + \varsigma \, dW_t^s
+    $$
+\end{enumerate}
+
+\textit{Results}
+
+\begin{itemize}
+    \item First, we have the historical time series $\{\tilde{h}_t\}$, which can be decoded to complete valid option surfaces at each $t$.
+    \item Second, from this time series, we can simulate $h_t$ (which can be decoded to option surface). Since the option surfaces are normalized (and more), we can simulate spot prices based on the simulated option surfaces, through a defined (or fitted) dependance.
+\end{itemize}
+
+\vspace{1em}
+\hrule
+\begin{center}
+\textbf{Research Proposal}
+\end{center}
+\hrule
+\vspace{1em}
+
+The research proposal is as follows:
+\begin{itemize}
+    \item Obtain the historical option surfaces and fit the time series $\{\tilde{h}_t\}$, which can be directly decoded to the full option surface.
+    \item Analyse this resulting time series (PCA, AR(1), GARCH, Generative AI models, etc.) and simulate jointly option surfaces $h_t$ and spot prices $s_t$.
+    \item Use the deep hedging agent to learn optimal rebalancing (timing, size, moneyness) and manage exposure (delta, gamma, theta), using the simulated option surfaces and spot as inputs. Note that from this joint simulation, the agent can use the option surfaces as an input or for trading other options.
+\end{itemize}
+
+\textbf{Main challenges}:
+\begin{itemize}
+    \item Use deep hedging with multi-assets and multi-inputs
+    \item De-americanized option: the above theory is about European options. Trading American options requires an adjustment (called de-americanisation). Since the investment strategy is not naked (mainly covered), the risk from European to American option is not as important.
+    \item Efficient time series analysis (classic time series, generative AI time series)
+\end{itemize}
+
+\end{document}
