@@ -102,12 +102,12 @@ The above option surface modeling SANOS can be viewed as the mapping
 $$
 (q, W; \hat{K}, \hat{T}, \mu) \xrightarrow{SANOS} C_{\text{\tiny SANOS}}
 $$
-where $q, W$ are optimized variables, $\hat{K}, \hat{T}, \mu$ are deterministic (surface grid and smoothing parameter). $C_{\text{\tiny SANOS}}$ is a complete option surface.
+where $q$ is the martingale density (the variable being optimized), $W$ is the total volatility of the BS-kernel (subject to a non-arbitrage constraint: the variance of the terminal distribution can only grow with horizon, never shrink), and $\hat{K}$, $\hat{T}$ are the surface grid, $\mu$ is the smoothing parameter. $C_{\text{\tiny SANOS}}$ is a complete option surface.
 
 Since $q$ is subject to linear constraints, it is hard to use ML on it. The idea of ML-SANOS is to create the mapping
 $$
 (x) \xrightarrow{\text{\tiny ML-SANOS}}
-(\Sigma, W) \xrightarrow{\text{\tiny DLV}} (q) \xrightarrow{\text{\tiny SANOS}} C_{\text{\tiny SANOS}}
+(\Sigma, W) \xrightarrow{\text{\tiny DLV}} (q, W) \xrightarrow{\text{\tiny SANOS}} C_{\text{\tiny SANOS}}
 $$
 where $x$ and the decoder function ML-SANOS are trained from real market option surfaces. The objective function are the sum of losses from SANOS option surface against bid-ask and mid prices.
 
@@ -135,7 +135,7 @@ Assume we are given historic samples of ML-SANOS surface states $\tilde{h}_t = (
 
 \vspace{0.5em}
 
-Model a time series $h$ as follows (baseline model, potential for further research):
+Model a time series $h$ as follows (\textbf{baseline model, potential for further research}):
 
 \textit{Continuous-time PCA-AR(1)}
 $$
@@ -155,7 +155,14 @@ where $\mu \in \mathbb{R}$ is an intercept, $\beta \in \mathbb{R}^{n_h}$, $\vars
 
 \vspace{1em}
 
-\textit{Simulation}
+\textit{Results}
+
+\begin{itemize}
+    \item First, we have the historical time series $\{\tilde{h}_t\}$, which can be decoded to complete valid option surfaces at each $t$.
+    \item Second, from this time series, we can simulate $h_t$ (which can be decoded to option surface). Since the option surfaces are normalized (and more), we can simulate spot prices based on the simulated option surfaces, through a defined (or fitted) dependance.
+\end{itemize}
+
+\textit{Simulation} (\textbf{base case example})
 
 \begin{enumerate}
     \item Draw randomly $h_0$ from $\tilde h_{t \in \{1,\dots,n_t\}}$ or the invariant distribution.
@@ -164,24 +171,14 @@ where $\mu \in \mathbb{R}$ is an intercept, $\beta \in \mathbb{R}^{n_h}$, $\vars
     $$
     h_{t+dt} = h_t + \kappa(m - h_t)\Delta_t + \Sigma_h Z_t\sqrt{\Delta_t}
     $$
-    where $\Delta_t$ is the normalized time increment. The noise term is defined as mixture
-    $$
-    Z_t = \sqrt{1-b^2} \ \tilde\alpha_{I_t(\omega)} + b \ Y_t,
-    $$
-    between a resampled standardized historic PCA score and an independent standard normal $Y_t \sim \mathcal{N}(0, I_{n_\alpha})$ for bandwidth $b\in[0,1]$. Here $I_t(\omega)$ is sampled from the indices of the historic transitions. Hence $b=0$ gives empirical innovation resampling, while $b=1$ gives a Gaussian innovation with the same fitted covariance.
+    where $\Delta_t$ is the normalized time increment. The noise term $Z_t$ blends a resampled (standardized) historical PCA innovation with an independent Gaussian innovation, weighted by $b\in[0,1]$: $b=0$ is pure empirical resampling, $b=1$ is pure Gaussian with the same fitted covariance (once scaled by $\Sigma_h$).
 
-    \item Conditional on the complete surface path, generate log-spot using
+    \item Conditional on the complete surface path, generate log-spot
     $$
     ds_t = \mu \, dt + \beta^{\prime} \, dW_t^h + \varsigma \, dW_t^s
     $$
+    where $\mu$ is the drift, $\beta$ represents the dependance with the option surface, and $\varsigma$ is the diffusion of the spot-specific shock. (e.g. $\mu$ and $\varsigma$ constant, $\beta=0$, is an independent Black-Scholes diffusion process)
 \end{enumerate}
-
-\textit{Results}
-
-\begin{itemize}
-    \item First, we have the historical time series $\{\tilde{h}_t\}$, which can be decoded to complete valid option surfaces at each $t$.
-    \item Second, from this time series, we can simulate $h_t$ (which can be decoded to option surface). Since the option surfaces are normalized (and more), we can simulate spot prices based on the simulated option surfaces, through a defined (or fitted) dependance.
-\end{itemize}
 
 \vspace{1em}
 \hrule
