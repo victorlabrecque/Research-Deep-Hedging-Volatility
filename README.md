@@ -26,7 +26,7 @@ ___
 
 *Stochastic Model*
 
-- Working on classic underlying models such as G2++ (then Heston, GARCH, etc.) for training/testing/comparing deep hedging
+- Working on classic underlying models such as G2++, Heston, GARCH for fitting and pricing, and training/testing/comparing deep hedging
 
 *Deep Hedging*
 
