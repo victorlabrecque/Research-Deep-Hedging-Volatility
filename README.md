@@ -1,12 +1,27 @@
 # Research (Master & Summer Project)
 
-*This folder contains my notebooks and codes for my summer project and master's research.*
+*This folder contains my notebooks and codes for current master's research.*
 
-*Last update: 2026-08-26*
+*Last update: 2026-09-26*
 
 ___
 
-**Research Subject**
+
+### Research
+
+**A Deep Reinforcement Learning Approach to a Systematic Options Overlay Strategy using Arbitrage-Free Option Surfaces**
+
+This proposal builds a pipeline that fits real option surfaces with SANOS, a non-parametric method guaranteeing smooth, strictly arbitrage-free prices via convex Black-Scholes kernels, then extends it into a dynamic generative model (DYSANOS) by evolving a low-dimensional latent surface state, simulated jointly with the underlying spot price. The resulting realistic, always arbitrage-free simulated paths train a deep hedging reinforcement-learning agent to learn optimal options rebalancing (timing, sizing, strike selection) that maximizes a trade-off between expected wealth and risk (e.g. CVaR). Open challenges include multi-asset extensions in deep hedging, adapting the deep hedging framework from a pure hedging objective to an active investment strategy, and efficient time-series modeling of the spot and option surfaces jointly.
+KEYWORDS: Option Surface Modeling, Deep Hedging, Reinforcement Learning, Time Series Analysis, Dynamic Portfolio Management 
+
+- *for further information on my current research, benchmark model, research plan, data, etc. Refer to Notes/Research_Proposal.ipynb*
+
+
+___
+
+<br>
+
+### Research Subject
 
 *Stochastic Model*
 
@@ -20,16 +35,9 @@ ___
 
 - Modeling arbitrage-free smooth surface at single point in time, then simulate such surface while staying smooth and arbitrage-free. Simulate with different model (simple time series, complex time series, generative AI)
 
-<br>
+*Dynamic Portfolio Management (with derivatives)*
 
-**Objective**
-
-1. Data - (*Option Surface Modeling*) -> Historical fitted option surfaces - (*Dimension Reduction*) -> Time series of option surfaces
-
-2. Simulate option surfaces and stock price paths using stochastic models or generative AI/ML models
-
-3. Train deep hedging agent on such paths to learn optimal trading policy for risk management, hedging, investment strategies
-
+- Modeling arbitrage-free smooth surface at single point in time, then simulate such surface while staying smooth and arbitrage-free. Simulate with different model (simple time series, complex time series, generative AI)
 ___
 
 ### Folders & Files
@@ -87,6 +95,11 @@ Summer_finals.ipynb
 
 **Other & Testing**
 - General files for testing
+
+<br>
+
+**Other & Testing**
+- Current research and implementation of the benchmark model
 
 <br>
 
