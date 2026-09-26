@@ -12,6 +12,7 @@ ___
 **A Deep Reinforcement Learning Approach to a Systematic Options Overlay Strategy using Arbitrage-Free Option Surfaces**
 
 This proposal builds a pipeline that fits real option surfaces with SANOS, a non-parametric method guaranteeing smooth, strictly arbitrage-free prices via convex Black-Scholes kernels, then extends it into a dynamic generative model (DYSANOS) by evolving a low-dimensional latent surface state, simulated jointly with the underlying spot price. The resulting realistic, always arbitrage-free simulated paths train a deep hedging reinforcement-learning agent to learn optimal options rebalancing (timing, sizing, strike selection) that maximizes a trade-off between expected wealth and risk (e.g. CVaR). Open challenges include multi-asset extensions in deep hedging, adapting the deep hedging framework from a pure hedging objective to an active investment strategy, and efficient time-series modeling of the spot and option surfaces jointly.
+
 KEYWORDS: Option Surface Modeling, Deep Hedging, Reinforcement Learning, Time Series Analysis, Dynamic Portfolio Management 
 
 - *for further information on my current research, benchmark model, research plan, data, etc. Refer to Notes/Research_Proposal.ipynb*
